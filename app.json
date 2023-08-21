@@ -2,6 +2,7 @@
   "expo": {
     "name": "color-palette-card-spread-animation",
     "slug": "color-palette-card-spread-animation",
+    "scheme": "your-app-scheme",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -23,6 +24,7 @@
     },
     "web": {
       "favicon": "./assets/favicon.png"
-    }
+    },
+    "plugins": ["expo-router"]
   }
 }
