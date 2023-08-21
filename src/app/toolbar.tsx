@@ -1,3 +1,4 @@
+import { Stack } from 'expo-router';
 import React from 'react';
 import { SafeAreaView, StyleSheet, View } from 'react-native';
 import {
@@ -155,7 +156,7 @@ function Button({ item, index, offset, activeY }: ButtonType) {
 /**
  * Toolbar-component
  */
-function Toolbar() {
+export default function Toolbar() {
   // Active press point within TOOLBAR_HEIGHT, 0 when not active.
   const activeY = useSharedValue(0);
   // Contains list scroll offset from top. In (-) when user scroll past the top on iOS (important to activate Rubberbanding effect).
@@ -179,25 +180,24 @@ function Toolbar() {
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
-      <SafeAreaView style={styles.container}>
-        <View>
-          <View style={styles.toolbarView} />
-          <GestureDetector gesture={dragGesture}>
-            <Animated.FlatList
-              style={styles.buttonListView}
-              contentContainerStyle={{ padding: 8 }}
-              onScroll={scrollHandler}
-              scrollEventThrottle={16}
-              showsVerticalScrollIndicator={false}
-              data={BUTTONS_LIST}
-              renderItem={({ item, index }) => (
-                <Button offset={scrollOffset} {...{ item, index, activeY }} />
-              )}
-              keyExtractor={(item, index) => `${item.title}_${index}`}
-            />
-          </GestureDetector>
-        </View>
-      </SafeAreaView>
+      <View style={styles.container}>
+        <Stack.Screen options={{ title: 'Toolbar' }} />
+        <View style={styles.toolbarView} />
+        <GestureDetector gesture={dragGesture}>
+          <Animated.FlatList
+            style={styles.buttonListView}
+            contentContainerStyle={{ padding: 8 }}
+            onScroll={scrollHandler}
+            scrollEventThrottle={16}
+            showsVerticalScrollIndicator={false}
+            data={BUTTONS_LIST}
+            renderItem={({ item, index }) => (
+              <Button offset={scrollOffset} {...{ item, index, activeY }} />
+            )}
+            keyExtractor={(item, index) => `${item.title}_${index}`}
+          />
+        </GestureDetector>
+      </View>
     </GestureHandlerRootView>
   );
 }
@@ -245,5 +245,3 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
 });
-
-export default Toolbar;
