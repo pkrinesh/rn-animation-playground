@@ -1,6 +1,12 @@
 import { Stack } from 'expo-router';
-import { Text, View, StyleSheet } from 'react-native';
-import { FlatList } from 'react-native-gesture-handler';
+import { StyleSheet, Text, View } from 'react-native';
+import Animated, {
+  SharedValue,
+  useAnimatedScrollHandler,
+  useAnimatedStyle,
+  useSharedValue,
+  withTiming,
+} from 'react-native-reanimated';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 
 const COLORS = [
@@ -49,13 +55,28 @@ const TOTAL_HEIGHT = ITEM_HEIGHT * BUTTONS_LIST.length + 16; // == 1600, BUTTONS
 type IconButtonProps = {
   index: number;
   item: (typeof BUTTONS_LIST)[0];
+  offset: SharedValue<number>;
 };
 
-function IconButton({ index, item }: IconButtonProps) {
+function IconButton({ index, item, offset }: IconButtonProps) {
+  const itemEndPos = (index + 1) * ITEM_HEIGHT + 8;
+  const itemStartPos = itemEndPos - ITEM_HEIGHT;
+
+  const scrollAnimatedIconStyle = useAnimatedStyle(() => {
+    const isItemOutOfView =
+      itemEndPos < offset.value || itemStartPos > offset.value + TOOLBAR_HEIGHT;
+
+    return {
+      transform: [
+        { scale: withTiming(isItemOutOfView ? 0.4 : 1, { duration: 250 }) },
+      ],
+    };
+  });
+
   return (
-    <View
+    <Animated.View
       className="w-[50] h-[50] rounded-xl my-2 p-[13] flex-row items-center"
-      style={[{ backgroundColor: item.color }]}
+      style={[{ backgroundColor: item.color }, scrollAnimatedIconStyle]}
     >
       <View className="">
         <Icon name={item.icon} color="white" size={24} />
@@ -63,11 +84,17 @@ function IconButton({ index, item }: IconButtonProps) {
       <View className="ml-3 opacity-0">
         <Text className="text-white text-base font-bold">{item.title}</Text>
       </View>
-    </View>
+    </Animated.View>
   );
 }
 
 export default function ToolBar() {
+  const scrollOffset = useSharedValue(0);
+
+  const scrollHandler = useAnimatedScrollHandler((e) => {
+    scrollOffset.value = e.contentOffset.y;
+  });
+
   return (
     <View className="flex-1 justify-center">
       <Stack.Screen options={{ title: 'Toolbar' }} />
@@ -75,7 +102,7 @@ export default function ToolBar() {
         style={[{ width: 50 + 16, height: TOOLBAR_HEIGHT }, styles.shadow]}
         className="bg-white rounded-xl mx-6 my-10"
       />
-      <FlatList
+      <Animated.FlatList
         className="absolute w-full mx-6 my-10"
         style={{ height: TOOLBAR_HEIGHT, elevation: 32 }}
         data={BUTTONS_LIST}
@@ -83,8 +110,9 @@ export default function ToolBar() {
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{ padding: 8 }}
         scrollEventThrottle={16}
+        onScroll={scrollHandler}
         renderItem={({ item, index }) => (
-          <IconButton item={item} index={index} />
+          <IconButton item={item} index={index} offset={scrollOffset} />
         )}
       />
     </View>
