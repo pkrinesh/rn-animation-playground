@@ -13,6 +13,10 @@ const routes: RouteConfig[] = [
     name: 'Toolbar',
     href: '/toolbar',
   },
+  {
+    name: 'Toolbar 1',
+    href: '/toolbar-1',
+  },
 ];
 
 export default function Home() {

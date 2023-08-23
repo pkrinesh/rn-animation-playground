@@ -19,13 +19,13 @@ import Animated, {
 import Icon from 'react-native-vector-icons/MaterialIcons';
 
 const COLORS = [
-  'rgb(149, 135, 245)',
-  'rgb(166, 210, 160)',
-  'rgb(91, 139, 246)',
-  'rgb(229, 168, 85)',
-  'rgb(234, 125, 125)',
-  'rgb(186, 134, 230)',
-  'rgb(233, 198, 83)',
+  'hsl(243, 77%, 73%)',
+  'hsl(107, 40%, 73%)',
+  'hsl(220, 80%, 64%)',
+  'hsl(36, 72%, 61%)',
+  'hsl(0, 67%, 70%)',
+  'hsl(271, 61%, 72%)',
+  'hsl(45, 81%, 63%)',
 ];
 
 const BUTTONS_LIST = [
@@ -57,7 +57,7 @@ const BUTTONS_LIST = [
   { title: 'Graphic', icon: 'pie-chart-outlined', color: COLORS[2] },
 ];
 
-type ButtonType = {
+type ButtonProps = {
   item: (typeof BUTTONS_LIST)[0];
   index: number;
   offset: SharedValue<number>;
@@ -71,7 +71,7 @@ const TOTAL_HEIGHT = ITEM_HEIGHT * BUTTONS_LIST.length + 16; // == 1600, BUTTONS
 /**
  * Button-component
  */
-function Button({ item, index, offset, activeY }: ButtonType) {
+function Button({ item, index, offset, activeY }: ButtonProps) {
   const itemEndPos = (index + 1) * ITEM_HEIGHT + 8;
   const itemStartPos = itemEndPos - ITEM_HEIGHT;
 
@@ -159,7 +159,7 @@ function Button({ item, index, offset, activeY }: ButtonType) {
 export default function Toolbar() {
   // Active press point within TOOLBAR_HEIGHT, 0 when not active.
   const activeY = useSharedValue(0);
-  // Contains list scroll offset from top. In (-) when user scroll past the top on iOS (important to activate Rubberbanding effect).
+  // Contains list scroll offset from top. In (-) when user scroll past the top on iOS (important to activate Rubber banding effect).
   const scrollOffset = useSharedValue(0);
 
   const dragGesture = Gesture.Pan()
@@ -185,16 +185,16 @@ export default function Toolbar() {
         <View style={styles.toolbarView} />
         <GestureDetector gesture={dragGesture}>
           <Animated.FlatList
+            data={BUTTONS_LIST}
+            keyExtractor={(item, index) => `${item.title}_${index}`}
             style={styles.buttonListView}
             contentContainerStyle={{ padding: 8 }}
+            showsVerticalScrollIndicator={false}
             onScroll={scrollHandler}
             scrollEventThrottle={16}
-            showsVerticalScrollIndicator={false}
-            data={BUTTONS_LIST}
             renderItem={({ item, index }) => (
               <Button offset={scrollOffset} {...{ item, index, activeY }} />
             )}
-            keyExtractor={(item, index) => `${item.title}_${index}`}
           />
         </GestureDetector>
       </View>
