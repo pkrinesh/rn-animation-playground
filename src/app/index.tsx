@@ -1,7 +1,7 @@
 import clsx from 'clsx';
-import { Link, LinkComponent, LinkProps, Stack } from 'expo-router';
+import { Link, LinkProps, Stack } from 'expo-router';
 import { useState } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { View } from 'react-native';
 
 type RouteConfig = {
   name: string;
@@ -16,6 +16,10 @@ const routes: RouteConfig[] = [
   {
     name: 'Toolbar 1',
     href: '/toolbar-1',
+  },
+  {
+    name: 'To Scroll',
+    href: '/to-scroll',
   },
 ];
 

@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "color-palette-card-spread-animation",
-    "slug": "color-palette-card-spread-animation",
+    "name": "rn-animation-playground",
+    "slug": "rn-animation-playground",
     "scheme": "your-app-scheme",
     "version": "1.0.0",
     "orientation": "portrait",

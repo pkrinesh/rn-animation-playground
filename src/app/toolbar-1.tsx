@@ -2,8 +2,10 @@ import { Stack } from 'expo-router';
 import { StyleSheet, Text, View } from 'react-native';
 import Animated, {
   SharedValue,
+  useAnimatedRef,
   useAnimatedScrollHandler,
   useAnimatedStyle,
+  useScrollViewOffset,
   useSharedValue,
   withTiming,
 } from 'react-native-reanimated';
@@ -90,6 +92,7 @@ function IconButton({ index, item, offset }: IconButtonProps) {
 
 export default function ToolBar() {
   const scrollOffset = useSharedValue(0);
+  const listRef = useAnimatedRef<Animated.FlatList<(typeof BUTTONS_LIST)[0]>>();
 
   const scrollHandler = useAnimatedScrollHandler((e) => {
     scrollOffset.value = e.contentOffset.y;
@@ -103,6 +106,7 @@ export default function ToolBar() {
         className="bg-white rounded-xl mx-6 my-10"
       />
       <Animated.FlatList
+        ref={listRef}
         className="absolute w-full mx-6 my-10"
         style={{ height: TOOLBAR_HEIGHT, elevation: 32 }}
         data={BUTTONS_LIST}
