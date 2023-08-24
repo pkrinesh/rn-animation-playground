@@ -1,12 +1,14 @@
 import { Stack } from 'expo-router';
 import { StyleSheet, Text, View } from 'react-native';
+import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import Animated, {
+  Easing,
   SharedValue,
-  useAnimatedRef,
   useAnimatedScrollHandler,
   useAnimatedStyle,
   useDerivedValue,
   useSharedValue,
+  withSpring,
   withTiming,
 } from 'react-native-reanimated';
 import Icon from 'react-native-vector-icons/MaterialIcons';
@@ -58,9 +60,10 @@ type IconButtonProps = {
   index: number;
   item: (typeof BUTTONS_LIST)[0];
   offset: SharedValue<number>;
+  activeY: SharedValue<number>;
 };
 
-function IconButton({ index, item, offset }: IconButtonProps) {
+function IconButton({ index, item, offset, activeY }: IconButtonProps) {
   const itemEndPos = (index + 1) * ITEM_HEIGHT + 8;
   const itemStartPos = itemEndPos - ITEM_HEIGHT;
 
@@ -70,6 +73,16 @@ function IconButton({ index, item, offset }: IconButtonProps) {
     );
   }, [offset]);
 
+  const isItemActive = useDerivedValue(() => {
+    const activeYPos = activeY.value;
+    const offsetY = offset.value;
+
+    const isValid =
+      activeYPos >= itemStartPos - offsetY && activeYPos < itemEndPos - offsetY;
+
+    return activeYPos !== 0 && isValid;
+  }, [activeY]);
+
   const scrollAnimatedIconStyle = useAnimatedStyle(() => ({
     transform: [
       {
@@ -78,28 +91,68 @@ function IconButton({ index, item, offset }: IconButtonProps) {
     ],
   }));
 
+  const activeIconContainerStyle = useAnimatedStyle(() => ({
+    width: withSpring(isItemActive.value ? 140 : 50, { damping: 15 }),
+
+    transform: [
+      {
+        translateX: withTiming(isItemActive.value ? 55 : 0, {
+          duration: 250,
+          easing: Easing.out(Easing.quad),
+        }),
+      },
+      {
+        scale: withTiming(isItemActive.value ? 1.2 : 1, { duration: 250 }),
+      },
+    ],
+  }));
+
+  const activeIconStyle = useAnimatedStyle(() => {
+    return {
+      transform: [
+        { scale: withTiming(isItemActive.value ? 0.8 : 1, { duration: 250 }) },
+      ],
+    };
+  });
+
+  const activeTitleStyle = useAnimatedStyle(() => {
+    return {
+      opacity: withTiming(isItemActive.value ? 1 : 0, { duration: 250 }),
+    };
+  });
+
   return (
     <Animated.View
       className="w-[50] h-[50] rounded-xl my-2 p-[13] flex-row items-center"
-      style={[{ backgroundColor: item.color }, scrollAnimatedIconStyle]}
+      style={[
+        { backgroundColor: item.color },
+        scrollAnimatedIconStyle,
+        activeIconContainerStyle,
+      ]}
     >
-      <View className="">
+      <Animated.View style={[activeIconStyle]}>
         <Icon name={item.icon} color="white" size={24} />
-      </View>
-      <View className="ml-3 opacity-0">
+      </Animated.View>
+      <Animated.View className="ml-3" style={[activeTitleStyle]}>
         <Text className="text-white text-base font-bold">{item.title}</Text>
-      </View>
+      </Animated.View>
     </Animated.View>
   );
 }
 
 export default function ToolBar() {
   const scrollOffset = useSharedValue(0);
-  const listRef = useAnimatedRef<Animated.FlatList<(typeof BUTTONS_LIST)[0]>>();
+  const activeY = useSharedValue(0);
 
   const scrollHandler = useAnimatedScrollHandler((e) => {
     scrollOffset.value = e.contentOffset.y;
   });
+
+  const dragGesture = Gesture.Pan()
+    .activateAfterLongPress(200)
+    .onStart((e) => (activeY.value = e.y))
+    .onUpdate((e) => (activeY.value = e.y))
+    .onEnd(() => (activeY.value = 0));
 
   return (
     <View className="flex-1 justify-center">
@@ -108,20 +161,26 @@ export default function ToolBar() {
         style={[{ width: 50 + 16, height: TOOLBAR_HEIGHT }, styles.shadow]}
         className="bg-white rounded-xl mx-6 my-10"
       />
-      <Animated.FlatList
-        ref={listRef}
-        className="absolute w-full mx-6 my-10"
-        style={{ height: TOOLBAR_HEIGHT, elevation: 32 }}
-        data={BUTTONS_LIST}
-        keyExtractor={(item, index) => `${item.title}_${index}`}
-        showsVerticalScrollIndicator={false}
-        contentContainerStyle={{ padding: 8 }}
-        scrollEventThrottle={16}
-        onScroll={scrollHandler}
-        renderItem={({ item, index }) => (
-          <IconButton item={item} index={index} offset={scrollOffset} />
-        )}
-      />
+      <GestureDetector gesture={dragGesture}>
+        <Animated.FlatList
+          className="absolute w-full mx-6 my-10"
+          style={{ height: TOOLBAR_HEIGHT, elevation: 32 }}
+          data={BUTTONS_LIST}
+          keyExtractor={(item, index) => `${item.title}_${index}`}
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={{ padding: 8 }}
+          scrollEventThrottle={16}
+          onScroll={scrollHandler}
+          renderItem={({ item, index }) => (
+            <IconButton
+              item={item}
+              index={index}
+              offset={scrollOffset}
+              activeY={activeY}
+            />
+          )}
+        />
+      </GestureDetector>
     </View>
   );
 }

@@ -76,8 +76,12 @@ function Button({ item, index, offset, activeY }: ButtonProps) {
   const itemStartPos = itemEndPos - ITEM_HEIGHT;
 
   const isItemActive = useDerivedValue(() => {
-    const pressedPoint = activeY.value + offset.value;
-    const isValid = pressedPoint >= itemStartPos && pressedPoint < itemEndPos;
+    // const pressedPoint = activeY.value + offset.value;
+    // const isValid = pressedPoint >= itemStartPos && pressedPoint < itemEndPos;
+
+    const isValid =
+      activeY.value >= itemStartPos - offset.value &&
+      activeY.value < itemEndPos - offset.value;
 
     return activeY.value !== 0 && isValid;
   }, [activeY]);
