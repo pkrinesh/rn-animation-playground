@@ -5,7 +5,7 @@ import Animated, {
   useAnimatedRef,
   useAnimatedScrollHandler,
   useAnimatedStyle,
-  useScrollViewOffset,
+  useDerivedValue,
   useSharedValue,
   withTiming,
 } from 'react-native-reanimated';
@@ -64,16 +64,19 @@ function IconButton({ index, item, offset }: IconButtonProps) {
   const itemEndPos = (index + 1) * ITEM_HEIGHT + 8;
   const itemStartPos = itemEndPos - ITEM_HEIGHT;
 
-  const scrollAnimatedIconStyle = useAnimatedStyle(() => {
-    const isItemOutOfView =
-      itemEndPos < offset.value || itemStartPos > offset.value + TOOLBAR_HEIGHT;
+  const isItemInTheView = useDerivedValue(() => {
+    return (
+      itemStartPos < TOOLBAR_HEIGHT + offset.value && itemEndPos > offset.value
+    );
+  }, [offset]);
 
-    return {
-      transform: [
-        { scale: withTiming(isItemOutOfView ? 0.4 : 1, { duration: 250 }) },
-      ],
-    };
-  });
+  const scrollAnimatedIconStyle = useAnimatedStyle(() => ({
+    transform: [
+      {
+        scale: withTiming(isItemInTheView.value ? 1 : 0.4, { duration: 250 }),
+      },
+    ],
+  }));
 
   return (
     <Animated.View
