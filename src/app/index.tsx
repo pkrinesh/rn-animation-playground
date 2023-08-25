@@ -17,6 +17,10 @@ const routes: RouteConfig[] = [
     name: 'To Scroll',
     href: '/to-scroll',
   },
+  {
+    name: 'Color Card Spread',
+    href: '/color-card-spread',
+  },
 ];
 
 export default function Home() {

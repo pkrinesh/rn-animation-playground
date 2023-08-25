@@ -1,6 +1,8 @@
+import { Stack } from 'expo-router';
 import React from 'react';
 import { ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import {
+  SharedValue,
   scrollTo,
   useAnimatedRef,
   useDerivedValue,
@@ -13,7 +15,8 @@ const ITEM_SIZE = 100;
 const ITEM_MARGIN = 10;
 
 /**
- * this is corrected and modified version of to-scroll example from reanimated docs.
+ * Attribute
+ * This is corrected and modified version of to-scroll example from reanimated docs.
  * https://docs.swmansion.com/react-native-reanimated/docs/scroll/scrollTo#example
  */
 export default function ToScroll() {
@@ -25,31 +28,11 @@ export default function ToScroll() {
   });
 
   const items = Array.from(Array(ITEM_COUNT).keys());
-  const Incrementor = ({ increment }: { increment: number }) => (
-    <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-      <TouchableOpacity
-        className="p-4 bg-orange-200 rounded-full"
-        onPress={() => {
-          scroll.value =
-            scroll.value + increment >= 0
-              ? scroll.value + increment
-              : ITEM_COUNT - 1 + increment;
-
-          if (increment > 0 && scroll.value >= ITEM_COUNT - 2) scroll.value = 0;
-        }}
-      >
-        <Icon
-          name={increment > 0 ? 'arrow-down' : 'arrow-up'}
-          size={28}
-          color={'rgb(194, 65, 12)'}
-        />
-      </TouchableOpacity>
-    </View>
-  );
 
   return (
-    <View style={{ flex: 1, flexDirection: 'column' }}>
-      <Incrementor increment={1} />
+    <View style={{ flex: 1 }} className="bg-orange-400">
+      <Stack.Screen options={{ title: 'To Scroll' }} />
+      <Incrementor increment={1} scroll={scroll} />
       <View
         style={{
           width: '100%',
@@ -60,6 +43,7 @@ export default function ToScroll() {
           ref={aref}
           className="bg-orange-400"
           contentContainerStyle={{ alignItems: 'center' }}
+          showsVerticalScrollIndicator={false}
         >
           {items.map((_, i) => (
             <View
@@ -80,7 +64,37 @@ export default function ToScroll() {
         </ScrollView>
       </View>
 
-      <Incrementor increment={-1} />
+      <Incrementor increment={-1} scroll={scroll} />
+    </View>
+  );
+}
+
+function Incrementor({
+  increment,
+  scroll,
+}: {
+  increment: number;
+  scroll: SharedValue<number>;
+}) {
+  return (
+    <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
+      <TouchableOpacity
+        className="p-4 bg-orange-200 rounded-full"
+        onPress={() => {
+          scroll.value =
+            scroll.value + increment >= 0
+              ? scroll.value + increment
+              : ITEM_COUNT - 1 + increment;
+
+          if (increment > 0 && scroll.value >= ITEM_COUNT - 2) scroll.value = 0;
+        }}
+      >
+        <Icon
+          name={increment > 0 ? 'arrow-down' : 'arrow-up'}
+          size={28}
+          color={'rgb(194, 65, 12)'}
+        />
+      </TouchableOpacity>
     </View>
   );
 }

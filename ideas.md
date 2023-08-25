@@ -15,3 +15,4 @@
 - [ ] Media control. Round shape. Increase voice on round motion on periphery.
 - [ ] Airbnb style on scroll header hide/show animation
 - [ ] Emoji Scrollbar
+- [ ] On Toolbar add the samsung style toolbar hide button and make sure to work on both side.
