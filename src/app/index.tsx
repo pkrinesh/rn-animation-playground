@@ -14,10 +14,6 @@ const routes: RouteConfig[] = [
     href: '/toolbar',
   },
   {
-    name: 'Toolbar 1',
-    href: '/toolbar-1',
-  },
-  {
     name: 'To Scroll',
     href: '/to-scroll',
   },

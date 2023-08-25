@@ -14,3 +14,4 @@
 - [ ] One hand use animation on home screen in 1+ device.
 - [ ] Media control. Round shape. Increase voice on round motion on periphery.
 - [ ] Airbnb style on scroll header hide/show animation
+- [ ] Emoji Scrollbar
