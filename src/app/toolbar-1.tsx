@@ -66,6 +66,7 @@ type IconButtonProps = {
 function IconButton({ index, item, offset, activeY }: IconButtonProps) {
   const itemEndPos = (index + 1) * ITEM_HEIGHT + 8;
   const itemStartPos = itemEndPos - ITEM_HEIGHT;
+  const endScrollLimit = TOTAL_HEIGHT - TOOLBAR_HEIGHT; // for rubber-band effect on iso (bottom)
 
   const isItemInTheView = useDerivedValue(() => {
     return (
@@ -83,6 +84,16 @@ function IconButton({ index, item, offset, activeY }: IconButtonProps) {
     return activeYPos !== 0 && isValid;
   }, [activeY]);
 
+  const rubberBandEffectOnIosStyle = useAnimatedStyle(() => ({
+    top:
+      offset.value < 0
+        ? (index + 1) * Math.abs(offset.value / 10)
+        : offset.value > endScrollLimit
+        ? -(BUTTONS_LIST.length - index + 1) *
+          Math.abs((offset.value - endScrollLimit) / 10)
+        : 0,
+  }));
+
   const scrollAnimatedIconStyle = useAnimatedStyle(() => ({
     transform: [
       {
@@ -93,7 +104,6 @@ function IconButton({ index, item, offset, activeY }: IconButtonProps) {
 
   const activeIconContainerStyle = useAnimatedStyle(() => ({
     width: withSpring(isItemActive.value ? 140 : 50, { damping: 15 }),
-
     transform: [
       {
         translateX: withTiming(isItemActive.value ? 55 : 0, {
@@ -128,6 +138,7 @@ function IconButton({ index, item, offset, activeY }: IconButtonProps) {
         { backgroundColor: item.color },
         scrollAnimatedIconStyle,
         activeIconContainerStyle,
+        rubberBandEffectOnIosStyle,
       ]}
     >
       <Animated.View style={[activeIconStyle]}>
