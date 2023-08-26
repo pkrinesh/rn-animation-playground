@@ -31,7 +31,7 @@ export default function ToScroll() {
   const items = Array.from(Array(ITEM_COUNT).keys());
 
   return (
-    <Scaffold options={{ title: 'To Scroll' }} clx="bg-orange-400">
+    <Scaffold options={{ title: 'To Scroll' }} classTw="bg-orange-400">
       <Incrementor increment={1} scroll={scroll} />
       <View
         style={{

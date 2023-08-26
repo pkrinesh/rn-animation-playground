@@ -16,3 +16,4 @@
 - [ ] Airbnb style on scroll header hide/show animation
 - [ ] Emoji Scrollbar
 - [ ] On Toolbar add the samsung style toolbar hide button and make sure to work on both side.
+- [ ] On Card spread add velocity gesture for opening and maybe if open then add individual folding for closing.

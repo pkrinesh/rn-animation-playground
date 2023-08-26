@@ -80,7 +80,7 @@ export default function ToolBar() {
     .onEnd(() => (activeY.value = 0));
 
   return (
-    <Scaffold clx={'justify-center'} options={{ title: 'Toolbar' }}>
+    <Scaffold classTw={'justify-center'} options={{ title: 'Toolbar' }}>
       <View
         style={[{ width: 50 + 16, height: TOOLBAR_HEIGHT }, styles.shadow]}
         className="bg-white rounded-xl mx-6 my-10"

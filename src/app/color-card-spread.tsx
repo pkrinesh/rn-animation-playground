@@ -1,10 +1,25 @@
 import clsx from 'clsx';
-import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { useMemo, useState } from 'react';
-import { ColorValue, Pressable, StyleProp, ViewStyle } from 'react-native';
-import { View, Text } from 'react-native';
-import { SharedValue } from 'react-native-reanimated';
+import {
+  ColorValue,
+  Pressable,
+  StyleProp,
+  View,
+  ViewStyle,
+} from 'react-native';
+import {
+  Gesture,
+  GestureDetector,
+  GestureUpdateEvent,
+  PanGestureHandlerEventPayload,
+} from 'react-native-gesture-handler';
+import Animated, {
+  SharedValue,
+  useAnimatedStyle,
+  useSharedValue,
+  withSpring,
+} from 'react-native-reanimated';
 import { Scaffold } from '~/components/scaffold';
 
 const COLOR_PALETTE = [
@@ -22,7 +37,7 @@ const PALETTE_HEIGHT = 250;
 type ColorsPaletteProps = {
   colors: ColorValue[];
   index: number;
-  // gestureDegree: SharedValue<number>;
+  gestureDegree: SharedValue<number>;
   activeColor: ColorValue;
   onActiveColor: (color: ColorValue) => void;
 };
@@ -32,28 +47,30 @@ function ColorPalette({
   colors,
   activeColor,
   onActiveColor,
+  gestureDegree,
 }: ColorsPaletteProps) {
-  const anchorPressHandler = () => {};
-  const colorPressHandler = (color: ColorValue) => {};
+  const anchorPressHandler = () => {
+    gestureDegree.value = gestureDegree.value === 0 ? 90 : 0;
+  };
 
-  const paletteStyle: StyleProp<ViewStyle> = useMemo(() => {
+  const paletteStyle: StyleProp<ViewStyle> = useAnimatedStyle(() => {
     const angle =
       COLOR_PALETTE.length - 1 > 0
-        ? (90 / (COLOR_PALETTE.length - 1)) * index
+        ? (gestureDegree.value / (COLOR_PALETTE.length - 1)) * index
         : 0;
 
     return {
       transform: [
         { translateY: (PALETTE_HEIGHT - 50) / 2 },
-        { rotate: `${angle}deg` },
+        { rotate: withSpring(`${angle}deg`, { mass: 0.4 }) },
         { translateY: -(PALETTE_HEIGHT - 50) / 2 },
       ],
     };
   }, []);
 
   return (
-    <View
-      className="absolute bg-white p-1 rounded-2xl"
+    <Animated.View
+      className="absolute bg-white p-1 rounded-[20px]"
       style={[{ width: PALETTE_WIDTH, height: PALETTE_HEIGHT }, paletteStyle]}
     >
       {colors.map((color, i) => (
@@ -61,9 +78,10 @@ function ColorPalette({
           key={i}
           className={clsx(
             'flex-1 w-full rounded-lg',
-            i === 0 && 'rounded-t-lg',
+            i === 0 && 'rounded-t-[20px]',
           )}
           style={[
+            // i === 0 && styles.colorTop,
             {
               backgroundColor: color,
               marginBottom: i < colors.length - 1 ? 4 : 0,
@@ -86,12 +104,37 @@ function ColorPalette({
           />
         </View>
       </Pressable>
-    </View>
+    </Animated.View>
   );
 }
 
 export default function ColorSwatch() {
   const [activeColor, setActiveColor] = useState<ColorValue>('rgb(64, 68, 88)');
+  const gestureDegree = useSharedValue(0);
+
+  const calculateDegree = (
+    e: GestureUpdateEvent<PanGestureHandlerEventPayload>,
+  ) => {
+    'worklet';
+
+    let degree =
+      Math.atan2(PALETTE_HEIGHT - e.y, e.x - PALETTE_WIDTH / 2) *
+      (180 / Math.PI);
+    degree < -90 && (degree = degree + 360);
+
+    return 90 - degree;
+  };
+
+  const dragGesture = Gesture.Pan()
+    .onStart((e) => {
+      gestureDegree.value = calculateDegree(e);
+    })
+    .onUpdate((e) => {
+      gestureDegree.value = calculateDegree(e);
+    })
+    .onEnd(() => {
+      gestureDegree.value = gestureDegree.value > 90 ? 90 : 0;
+    });
 
   return (
     <Scaffold
@@ -101,24 +144,27 @@ export default function ColorSwatch() {
         headerTitleStyle: { color: 'rgb(243 244 246)' },
         headerTintColor: 'rgb(243 244 246)',
       }}
-      clx="justify-end"
+      classTw="justify-end"
       style={{ backgroundColor: activeColor }}
     >
       <StatusBar backgroundColor={activeColor as string} style="light" />
-      <View
-        className="m-10 bg-gray-100 rounded-lg"
-        style={{ width: PALETTE_WIDTH, height: PALETTE_HEIGHT }}
-      >
-        {COLOR_PALETTE.map((colors, index) => (
-          <ColorPalette
-            colors={colors}
-            index={index}
-            key={index}
-            activeColor={activeColor}
-            onActiveColor={setActiveColor}
-          />
-        ))}
-      </View>
+      <GestureDetector gesture={dragGesture}>
+        <View
+          className="m-10"
+          style={{ width: PALETTE_WIDTH, height: PALETTE_HEIGHT }}
+        >
+          {COLOR_PALETTE.map((colors, index) => (
+            <ColorPalette
+              colors={colors}
+              index={index}
+              key={index}
+              activeColor={activeColor}
+              onActiveColor={setActiveColor}
+              gestureDegree={gestureDegree}
+            />
+          ))}
+        </View>
+      </GestureDetector>
     </Scaffold>
   );
 }

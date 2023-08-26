@@ -8,17 +8,17 @@ import { cn } from '~/utils';
 
 export type ScaffoldProps = ComponentProps<typeof Stack.Screen> &
   Pick<ViewProps, 'style' | 'children'> & {
-    clx?: ClassValue;
+    classTw?: ClassValue;
   };
 
 export function Scaffold({
   children,
-  clx,
+  classTw,
   style,
   ...screenProps
 }: ScaffoldProps) {
   return (
-    <View className={clsx('flex-1', clx)} style={style}>
+    <View className={clsx('flex-1', classTw)} style={style}>
       <Stack.Screen {...screenProps} />
       {children}
     </View>
