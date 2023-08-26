@@ -12,6 +12,7 @@ import Animated, {
   withTiming,
 } from 'react-native-reanimated';
 import Icon from 'react-native-vector-icons/MaterialIcons';
+import { Scaffold } from '~/components/scaffold';
 
 /**
  * Attribution:
@@ -63,6 +64,50 @@ const BUTTONS_LIST = [
 const ITEM_HEIGHT = 50 + 16; // 50 = icon height, 16 = top + bottom padding
 const TOOLBAR_HEIGHT = ITEM_HEIGHT * 7 + 16; // 50 = button height, 7 = total visible items, 16 = main toolbar's top + bottom padding
 const TOTAL_HEIGHT = ITEM_HEIGHT * BUTTONS_LIST.length + 16; // == 1600, BUTTONS_LIST.length === 24, 16 == top + bottom padding
+
+export default function ToolBar() {
+  const scrollOffset = useSharedValue(0);
+  const activeY = useSharedValue(0);
+
+  const scrollHandler = useAnimatedScrollHandler((e) => {
+    scrollOffset.value = e.contentOffset.y;
+  });
+
+  const dragGesture = Gesture.Pan()
+    .activateAfterLongPress(200)
+    .onStart((e) => (activeY.value = e.y))
+    .onUpdate((e) => (activeY.value = e.y))
+    .onEnd(() => (activeY.value = 0));
+
+  return (
+    <Scaffold clx={'justify-center'} options={{ title: 'Toolbar' }}>
+      <View
+        style={[{ width: 50 + 16, height: TOOLBAR_HEIGHT }, styles.shadow]}
+        className="bg-white rounded-xl mx-6 my-10"
+      />
+      <GestureDetector gesture={dragGesture}>
+        <Animated.FlatList
+          className="absolute w-full mx-6 my-10"
+          style={{ height: TOOLBAR_HEIGHT, elevation: 32 }}
+          data={BUTTONS_LIST}
+          keyExtractor={(item, index) => `${item.title}_${index}`}
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={{ padding: 8 }}
+          scrollEventThrottle={16}
+          onScroll={scrollHandler}
+          renderItem={({ item, index }) => (
+            <IconButton
+              item={item}
+              index={index}
+              offset={scrollOffset}
+              activeY={activeY}
+            />
+          )}
+        />
+      </GestureDetector>
+    </Scaffold>
+  );
+}
 
 type IconButtonProps = {
   index: number;
@@ -156,51 +201,6 @@ function IconButton({ index, item, offset, activeY }: IconButtonProps) {
         <Text className="text-white text-base font-bold">{item.title}</Text>
       </Animated.View>
     </Animated.View>
-  );
-}
-
-export default function ToolBar() {
-  const scrollOffset = useSharedValue(0);
-  const activeY = useSharedValue(0);
-
-  const scrollHandler = useAnimatedScrollHandler((e) => {
-    scrollOffset.value = e.contentOffset.y;
-  });
-
-  const dragGesture = Gesture.Pan()
-    .activateAfterLongPress(200)
-    .onStart((e) => (activeY.value = e.y))
-    .onUpdate((e) => (activeY.value = e.y))
-    .onEnd(() => (activeY.value = 0));
-
-  return (
-    <View className="flex-1 justify-center">
-      <Stack.Screen options={{ title: 'Toolbar' }} />
-      <View
-        style={[{ width: 50 + 16, height: TOOLBAR_HEIGHT }, styles.shadow]}
-        className="bg-white rounded-xl mx-6 my-10"
-      />
-      <GestureDetector gesture={dragGesture}>
-        <Animated.FlatList
-          className="absolute w-full mx-6 my-10"
-          style={{ height: TOOLBAR_HEIGHT, elevation: 32 }}
-          data={BUTTONS_LIST}
-          keyExtractor={(item, index) => `${item.title}_${index}`}
-          showsVerticalScrollIndicator={false}
-          contentContainerStyle={{ padding: 8 }}
-          scrollEventThrottle={16}
-          onScroll={scrollHandler}
-          renderItem={({ item, index }) => (
-            <IconButton
-              item={item}
-              index={index}
-              offset={scrollOffset}
-              activeY={activeY}
-            />
-          )}
-        />
-      </GestureDetector>
-    </View>
   );
 }
 

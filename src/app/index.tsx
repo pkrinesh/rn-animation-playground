@@ -2,6 +2,7 @@ import clsx from 'clsx';
 import { Link, LinkProps, Stack } from 'expo-router';
 import { useState } from 'react';
 import { View } from 'react-native';
+import { Scaffold } from '~/components/scaffold';
 
 type RouteConfig = {
   name: string;
@@ -27,8 +28,7 @@ export default function Home() {
   const [isPressed, setIsPressed] = useState(false);
 
   return (
-    <View className="flex-1">
-      <Stack.Screen options={{ title: 'Home' }} />
+    <Scaffold options={{ title: 'Home' }}>
       {routes.map(({ name, href }) => (
         <Link
           key={href}
@@ -43,6 +43,6 @@ export default function Home() {
           {name}
         </Link>
       ))}
-    </View>
+    </Scaffold>
   );
 }

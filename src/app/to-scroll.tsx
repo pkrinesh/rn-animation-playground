@@ -9,6 +9,7 @@ import {
   useSharedValue,
 } from 'react-native-reanimated';
 import Icon from 'react-native-vector-icons/Feather';
+import { Scaffold } from '~/components/scaffold';
 
 const ITEM_COUNT = 10;
 const ITEM_SIZE = 100;
@@ -30,8 +31,7 @@ export default function ToScroll() {
   const items = Array.from(Array(ITEM_COUNT).keys());
 
   return (
-    <View style={{ flex: 1 }} className="bg-orange-400">
-      <Stack.Screen options={{ title: 'To Scroll' }} />
+    <Scaffold options={{ title: 'To Scroll' }} clx="bg-orange-400">
       <Incrementor increment={1} scroll={scroll} />
       <View
         style={{
@@ -65,7 +65,7 @@ export default function ToScroll() {
       </View>
 
       <Incrementor increment={-1} scroll={scroll} />
-    </View>
+    </Scaffold>
   );
 }
 
