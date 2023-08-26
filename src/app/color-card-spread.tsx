@@ -1,6 +1,6 @@
 import clsx from 'clsx';
 import { StatusBar } from 'expo-status-bar';
-import { useMemo, useState } from 'react';
+import { useState } from 'react';
 import {
   ColorValue,
   Pressable,
@@ -53,6 +53,10 @@ function ColorPalette({
     gestureDegree.value = gestureDegree.value === 0 ? 90 : 0;
   };
 
+  const colorPressHandler = async (color: ColorValue) => {
+    onActiveColor(color);
+  };
+
   const paletteStyle: StyleProp<ViewStyle> = useAnimatedStyle(() => {
     const angle =
       COLOR_PALETTE.length - 1 > 0
@@ -87,7 +91,7 @@ function ColorPalette({
               marginBottom: i < colors.length - 1 ? 4 : 0,
             },
           ]}
-          onPress={() => onActiveColor(color)}
+          onPress={() => colorPressHandler(color)}
         />
       ))}
       <Pressable
@@ -143,6 +147,7 @@ export default function ColorSwatch() {
         headerTransparent: true,
         headerTitleStyle: { color: 'rgb(243 244 246)' },
         headerTintColor: 'rgb(243 244 246)',
+        navigationBarColor: activeColor as string,
       }}
       classTw="justify-end"
       style={{ backgroundColor: activeColor }}
